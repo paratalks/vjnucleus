@@ -4,7 +4,10 @@ import {databases, ID} from "@/lib/appwrite";
 
 export const createEvents = async (data: any) => {
     try {
-        return await databases.createDocument(databaseId, collectionId, ID.unique(), data);
+        console.log(data)
+        return await databases.createDocument(databaseId, collectionId, ID.unique(), data).then(res => {
+            return res;
+        });
     } catch (error) {
         return error;
     }

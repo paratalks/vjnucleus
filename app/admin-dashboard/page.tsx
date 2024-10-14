@@ -23,7 +23,13 @@ import {createEvents} from "@/action/events.action";
 
 export default function AdminDashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
-    const [fetchedFormData, setFetchedFormData] = useState({})
+    const [fetchedFormData, setFetchedFormData] = useState({
+        title: "",
+        date: "",
+        time: "",
+        meetingLink: ""
+    })
+
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Sidebar */}
@@ -88,7 +94,14 @@ export default function AdminDashboard() {
                                     <form onSubmit={(event) => {
                                         event.preventDefault()
                                         const formData = new FormData(event.currentTarget)
-                                        createEvents({title : formData.get("event-title"), eventDate: `${formData.get("event-date")} ${formData.get("event-time")}`, meetingLink: formData.get("event-link")})
+                                        createEvents({"title" : formData.get("event-title")?.toString(), "date": `${formData.get("event-date")?.toString()}`, "time": `${formData.get("event-time")?.toString()}`, "meetingLink": formData.get("event-link")?.toString()})
+                                        alert("Event Scheduled")
+                                        setFetchedFormData({
+                                            title: "",
+                                            date: "",
+                                            time: "",
+                                            meetingLink: ""
+                                        })
                                     }}>
 
                                         <CardHeader>
@@ -99,19 +112,19 @@ export default function AdminDashboard() {
                                             <div className="space-y-1">
                                                 <Label htmlFor="event-title">Event Title</Label>
                                                 <Input id="event-title" placeholder="Enter event title" name={"event-title"}
-                                                       onChange={(text) => console.log(text)}/>
+                                                       value={fetchedFormData.title} onChange={(t) => {setFetchedFormData({...fetchedFormData, title:t.currentTarget.value})}}/>
                                             </div>
                                             <div className="space-y-1">
                                                 <Label htmlFor="event-date">Event Date</Label>
-                                                <Input id="event-date" type="date" name={"event-date"}/>
+                                                <Input value={fetchedFormData.date} id="event-date" type="date" name={"event-date"} onChange={(t) => {setFetchedFormData({...fetchedFormData, date:t.currentTarget.value})}} />
                                             </div>
                                             <div className="space-y-1">
                                                 <Label htmlFor="event-time">Event Time</Label>
-                                                <Input id="event-time" type="time" name={"event-time"}/>
+                                                <Input value={fetchedFormData.time} id="event-time" type="time" name={"event-time"} onChange={(t) => {setFetchedFormData({...fetchedFormData, time:t.currentTarget.value})}} />
                                             </div>
                                             <div className="space-y-1">
                                                 <Label htmlFor="event-link">Meeting Link</Label>
-                                                <Input id="event-link" placeholder="Enter meeting link"/>
+                                                <Input value={fetchedFormData.meetingLink} id="event-link" name={"event-link"} placeholder="Enter meeting link" onChange={(t) => {setFetchedFormData({...fetchedFormData, meetingLink:t.currentTarget.value})}} />
                                             </div>
 
                                 </CardContent>

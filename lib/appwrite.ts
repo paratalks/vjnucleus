@@ -5,8 +5,7 @@ const client = new Client();
 
 client
     .setEndpoint('https://cloud.appwrite.io/v1') // Your Appwrite endpoint
-    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || "");
-
+    .setProject("670d55ac0031976504a6");
 
 // Your project ID
 
