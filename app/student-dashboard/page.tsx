@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, {useEffect, useState} from 'react'
 import { Calendar, Video, FileText, Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import {
@@ -15,19 +15,25 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
-import {databases} from "@/lib/appwrite"
+import {account, databases} from "@/lib/appwrite"
+import {getCookie} from "@/lib/cookies";
+import {redirect} from "next/navigation";
 export default function StudentDashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [upcomingEvents, setUpcomingEvents] = useState([{}])
+    const [recordings, setRecording] = useState([{}])
+    const [loading, setLoading] = useState({events: true, recordings:true, notes:true, practice:true})
     // Mock data for demonstration
     databases.listDocuments(process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "", process.env.NEXT_PUBLIC_APPWRITE_EVENT_COLLECTION_ID || "").then(res => {
+        setLoading({...loading, events: false})
         return setUpcomingEvents(res.documents)
     })
 
-    const recordings = [
-        {id: 1, title: 'Introduction to Algebra', link: 'https://youtube.com/watch?v=abc123'},
-        {id: 2, title: 'Chemistry Basics', link: 'https://youtube.com/watch?v=def456'},
-    ]
+    databases.listDocuments(process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "", process.env.NEXT_PUBLIC_APPWRITE_RECORDING_COLLECTION_ID || "").then(res => {
+        setLoading({...loading, recordings: false})
+        return setRecording(res.documents)
+    })
+
 
     const notes = [
         {id: 1, title: 'Calculus Notes', link: 'https://example.com/calculus-notes.pdf'},
@@ -38,7 +44,16 @@ export default function StudentDashboard() {
         {id: 1, title: 'Algebra Practice Set', link: 'https://example.com/algebra-problems.pdf'},
         {id: 2, title: 'Chemistry Equations', link: 'https://example.com/chemistry-equations.pdf'},
     ]
-
+    useEffect(() => {
+        (async ()=>{
+            console.log(await account.getSession(
+                'current' // sessionId
+            ))
+            const user =  await account.get();
+        if(!user)
+            redirect("/signin")
+        })()
+    }, []);
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Sidebar */}
@@ -100,9 +115,9 @@ export default function StudentDashboard() {
                                         <CardDescription>Your scheduled classes and meetings</CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        {upcomingEvents.map((event:any) => (
-                                            <div key={event.id} className="mb-4 p-4 border rounded-lg">
-                                                <h3 className="font-semibold">{event.title}</h3>
+                                        {upcomingEvents.map((event:any, index) => (
+                                            <div key={index} className="mb-4 p-4 border rounded-lg">
+                                                <h3 className="font-semibold">{loading.events ? "Loading...." : event.title}</h3>
                                                 <p>{event.date} at {event.time}</p>
                                                 <Button
                                                     className="mt-2"
@@ -131,12 +146,12 @@ export default function StudentDashboard() {
                                         <CardDescription>Watch previous lectures</CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        {recordings.map((recording) => (
-                                            <div key={recording.id} className="mb-4 p-4 border rounded-lg">
-                                                <h3 className="font-semibold">{recording.title}</h3>
+                                        {recordings.map((recording:any, index) => (
+                                            <div key={index} className="mb-4 p-4 border rounded-lg">
+                                                <h3 className="font-semibold">{loading.recordings ? "Loading..." : recording.title}</h3>
                                                 <Button
                                                     className="mt-2"
-                                                    onClick={() => window.open(recording.link, '_blank')}
+                                                    onClick={() => window.open(recording.recordingLink, '_blank')}
                                                 >
                                                     Watch Lecture
                                                 </Button>

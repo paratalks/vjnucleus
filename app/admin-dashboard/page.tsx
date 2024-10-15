@@ -20,6 +20,7 @@ import {
     TabsTrigger,
 } from "@/components/ui/tabs"
 import {createEvents} from "@/action/events.action";
+import {saveRecording} from "@/action/recording.action";
 
 export default function AdminDashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -29,6 +30,12 @@ export default function AdminDashboard() {
         time: "",
         meetingLink: ""
     })
+    const [fetchedRecordingData, setFetchedRecordingData] = useState({
+        title: "",
+        description: "",
+        recordingLink: ""
+    })
+
 
     return (
         <div className="flex h-screen bg-gray-100">
@@ -136,27 +143,44 @@ export default function AdminDashboard() {
                             </TabsContent>
                             <TabsContent value="upload-lecture">
                                 <Card>
-                                    <CardHeader>
-                                        <CardTitle>Upload Lecture</CardTitle>
-                                        <CardDescription>Upload a recorded lecture link</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-2">
-                                        <div className="space-y-1">
-                                            <Label htmlFor="lecture-title">Lecture Title</Label>
-                                            <Input id="lecture-title" placeholder="Enter lecture title" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <Label htmlFor="lecture-link">Lecture Link</Label>
-                                            <Input id="lecture-link" placeholder="Enter lecture link" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <Label htmlFor="lecture-description">Description</Label>
-                                            <Textarea id="lecture-description" placeholder="Enter lecture description" />
-                                        </div>
-                                    </CardContent>
-                                    <CardFooter>
-                                        <Button>Upload Lecture</Button>
-                                    </CardFooter>
+                                    <form onSubmit={(event) => {
+                                        event.preventDefault()
+                                        const formData = new FormData(event.currentTarget)
+                                        saveRecording({
+                                            "title": formData.get("recording-title")?.toString(),
+                                            "description": `${formData.get("recording-desc")?.toString()}`,
+                                            "recordingLink": `${formData.get("recording-link")?.toString()}`,
+                                        })
+                                        alert("Recording Saved")
+                                        setFetchedRecordingData({
+                                            title: "",
+                                            description: "",
+                                            recordingLink: ""
+                                        })
+                                    }}>
+                                        <CardHeader>
+                                            <CardTitle>Upload Lecture</CardTitle>
+                                            <CardDescription>Upload a recorded lecture link</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-2">
+                                            <div className="space-y-1">
+                                                <Label htmlFor="lecture-title">Lecture Title</Label>
+                                                <Input value={fetchedRecordingData.title} onChange={(e)=>{setFetchedRecordingData({...fetchedRecordingData,title: e.currentTarget.value})}} id="lecture-title" name={"recording-title"} placeholder="Enter lecture title"/>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label htmlFor="lecture-link">Lecture Link</Label>
+                                                <Input id="lecture-link" value={fetchedRecordingData.recordingLink} onChange={(e)=>{setFetchedRecordingData({...fetchedRecordingData,recordingLink: e.currentTarget.value})}} name={"recording-link"} placeholder="Enter lecture link"/>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label htmlFor="lecture-description">Description</Label>
+                                                <Textarea name={"recording-desc"} value={fetchedRecordingData.description} onChange={(e)=>{setFetchedRecordingData({...fetchedRecordingData,description: e.currentTarget.value})}} id="lecture-description"
+                                                          placeholder="Enter lecture description"/>
+                                            </div>
+                                        </CardContent>
+                                        <CardFooter>
+                                            <Button type={"submit"}>Upload Lecture</Button>
+                                        </CardFooter>
+                                    </form>
                                 </Card>
                             </TabsContent>
                             <TabsContent value="upload-notes">
@@ -168,7 +192,7 @@ export default function AdminDashboard() {
                                     <CardContent className="space-y-2">
                                         <div className="space-y-1">
                                             <Label htmlFor="notes-title">Notes Title</Label>
-                                            <Input id="notes-title" placeholder="Enter notes title" />
+                                            <Input id="notes-title" placeholder="Enter notes title"/>
                                         </div>
                                         <div className="space-y-1">
                                             <Label htmlFor="notes-file">PDF File</Label>

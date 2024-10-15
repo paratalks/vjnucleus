@@ -1,10 +1,9 @@
-const collectionId = "670d563b001ba1da151a"
+const collectionId = "670d564f0017b8e522b4"
 const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "";
 import {databases, ID} from "@/lib/appwrite";
 
-export const createEvents = async (data: any) => {
+export const saveRecording = async (data: any) => {
     try {
-        console.log(data)
         return await databases.createDocument(databaseId, collectionId, ID.unique(), data).then(res => {
             return res;
         });
