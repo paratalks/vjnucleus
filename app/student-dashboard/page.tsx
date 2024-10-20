@@ -22,17 +22,20 @@ export default function StudentDashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [upcomingEvents, setUpcomingEvents] = useState([{}])
     const [recordings, setRecording] = useState([{}])
-    const [loading, setLoading] = useState({events: true, recordings:true, notes:true, practice:true})
+    const [loading, setLoading] = useState({events: false, recordings:false, notes:false, practice:false})
     // Mock data for demonstration
-    databases.listDocuments(process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "", process.env.NEXT_PUBLIC_APPWRITE_EVENT_COLLECTION_ID || "").then(res => {
-        setLoading({...loading, events: false})
-        return setUpcomingEvents(res.documents)
-    })
+    useEffect(() => {
+        databases.listDocuments(process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "", process.env.NEXT_PUBLIC_APPWRITE_EVENT_COLLECTION_ID || "").then(res => {
+            setLoading({...loading, events: false})
+            return setUpcomingEvents(res.documents)
+        })
 
-    databases.listDocuments(process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "", process.env.NEXT_PUBLIC_APPWRITE_RECORDING_COLLECTION_ID || "").then(res => {
-        setLoading({...loading, recordings: false})
-        return setRecording(res.documents)
-    })
+        databases.listDocuments(process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "", process.env.NEXT_PUBLIC_APPWRITE_RECORDING_COLLECTION_ID || "").then(res => {
+            setLoading({...loading, recordings: false})
+            return setRecording(res.documents)
+        })
+    },[recordings,upcomingEvents])
+
 
 
     const notes = [
@@ -44,16 +47,7 @@ export default function StudentDashboard() {
         {id: 1, title: 'Algebra Practice Set', link: 'https://example.com/algebra-problems.pdf'},
         {id: 2, title: 'Chemistry Equations', link: 'https://example.com/chemistry-equations.pdf'},
     ]
-    useEffect(() => {
-        (async ()=>{
-            console.log(await account.getSession(
-                'current' // sessionId
-            ))
-            const user =  await account.get();
-        if(!user)
-            redirect("/signin")
-        })()
-    }, []);
+
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Sidebar */}
